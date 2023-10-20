@@ -1,94 +1,60 @@
-import Link from "next/link"
-import { signIn, signOut, useSession } from "next-auth/react"
-import styles from "./header.module.css"
+"use client";
 
-// The approach used in this component shows how to build a sign in and sign out
-// component that works on pages which support both client and server side
-// rendering, and avoids any flash incorrect content on initial page load.
+import Link from "next/link";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
 export default function Header() {
-  const { data: session, status } = useSession()
-  const loading = status === "loading"
+	const { data: session, status } = useSession();
+	const router = useRouter();
 
-  return (
-    <header>
-      <noscript>
-        <style>{`.nojs-show { opacity: 1; top: 0; }`}</style>
-      </noscript>
-      <div className={styles.signedInStatus}>
-        <p
-          className={`nojs-show ${
-            !session && loading ? styles.loading : styles.loaded
-          }`}
-        >
-          {!session && (
-            <>
-              <span className={styles.notSignedInText}>
-                You are not signed in
-              </span>
-              <a
-                href={`/api/auth/signin`}
-                className={styles.buttonPrimary}
-                onClick={(e) => {
-                  e.preventDefault()
-                  signIn()
-                }}
-              >
-                Sign in
-              </a>
-            </>
-          )}
-          {session?.user && (
-            <>
-              {session.user.image && (
-                <span
-                  style={{ backgroundImage: `url('${session.user.image}')` }}
-                  className={styles.avatar}
-                />
-              )}
-              <span className={styles.signedInText}>
-                <small>Signed in as</small>
-                <br />
-                <strong>{session.user.email ?? session.user.name}</strong>
-              </span>
-              <a
-                href={`/api/auth/signout`}
-                className={styles.button}
-                onClick={(e) => {
-                  e.preventDefault()
-                  signOut()
-                }}
-              >
-                Sign out
-              </a>
-            </>
-          )}
-        </p>
-      </div>
-      <nav>
-        <ul className={styles.navItems}>
-          <li className={styles.navItem}>
-            <Link href="/">Home</Link>
-          </li>
-          <li className={styles.navItem}>
-            <Link href="/client">Client</Link>
-          </li>
-          <li className={styles.navItem}>
-            <Link href="/server">Server</Link>
-          </li>
-          <li className={styles.navItem}>
-            <Link href="/protected">Protected</Link>
-          </li>
-          <li className={styles.navItem}>
-            <Link href="/api-example">API</Link>
-          </li>
-          <li className={styles.navItem}>
-            <Link href="/admin">Admin</Link>
-          </li>
-          <li className={styles.navItem}>
-            <Link href="/me">Me</Link>
-          </li>
-        </ul>
-      </nav>
-    </header>
-  )
+	const loading = status === "loading";
+
+	return (
+		<header key="1" className="flex flex-col items-center">
+			<div className="w-full h-16 px-4 flex items-center justify-between bg-gray-200 dark:bg-gray-800 rounded-b-lg">
+				<div className="text-left text-md font-semibold text-zinc-100">
+					{!session ? "Not signed in" : `Authenticated`}
+				</div>
+				{!session ? (
+					<>
+						<a
+							href={`/api/auth/signin`}
+							className="inline-flex h-10 items-center justify-center rounded-md bg-zinc-900 px-8 text-sm font-medium text-zinc-50 shadow transition-colors hover:bg-zinc-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 dark:focus-visible:ring-zinc-300"
+							onClick={(e) => {
+								e.preventDefault();
+								signIn();
+							}}
+						>
+							Sign in
+						</a>
+					</>
+				) : (
+					<a
+						href={`/api/auth/signout`}
+						className="inline-flex h-10 items-center justify-center rounded-md bg-zinc-900 px-8 text-sm font-medium text-zinc-50 shadow transition-colors hover:bg-zinc-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 dark:focus-visible:ring-zinc-300"
+						onClick={(e) => {
+							e.preventDefault();
+							signOut();
+							router.push("/");
+						}}
+					>
+						Sign out
+					</a>
+				)}
+			</div>
+			<p>{loading && "Loading..."}</p>
+			<nav className="w-full h-12 flex gap-x-4 items-center">
+				<Link className="text-md font-bold text-zinc-900" href="/">
+					Home
+				</Link>
+				<Link className="text-md font-bold text-zinc-900" href="/me">
+					Me
+				</Link>
+				<Link className="text-md font-bold text-zinc-900" href="/protected">
+					Protected
+				</Link>
+			</nav>
+		</header>
+	);
 }
